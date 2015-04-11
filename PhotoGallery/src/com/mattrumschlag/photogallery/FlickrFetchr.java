@@ -1,5 +1,6 @@
 package com.mattrumschlag.photogallery;
 
+import java.io.BufferedInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -20,7 +21,7 @@ import android.util.Log;
 public class FlickrFetchr {
 	public static final String TAG = "FlickrFetchr";
 	
-	private static final String ENDPOINT = "http://api.flickr.com/services/rest/";
+	private static final String ENDPOINT = "https://api.flickr.com/services/rest/";
 	private static final String API_KEY = "504b8ef9e68a0f1cd4346cd6576cf132";
 	private static final String METHOD_GET_RECENT = "flickr.photos.getRecent";
 	private static final String PARAM_EXTRAS = "extras";
@@ -30,20 +31,17 @@ public class FlickrFetchr {
 	byte[] getUrlBytes(String urlSpec) throws IOException{
 		URL url = new URL(urlSpec);
 		HttpURLConnection connection = (HttpURLConnection)url.openConnection();
-		
-		try {
-			ByteArrayOutputStream out = new ByteArrayOutputStream();
-			InputStream in = connection.getInputStream();
+	    connection.setRequestProperty("User-Agent", "Mozilla/5.0 (Windows NT 6.1; WOW64; rv:37.0) Gecko/20100101 Firefox/37.0");
+	    connection.setRequestProperty("Accept", "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8");
 
+	    try {
+			ByteArrayOutputStream out = new ByteArrayOutputStream();
+			
+			//InputStream in = connection.getInputStream();
+			InputStream in = new BufferedInputStream(connection.getInputStream());
 	        InputStreamReader isw = new InputStreamReader(in);
-	    /**    String foo = "";
-	        int data = isw.read();
-	        while (data != -1) {
-	            char current = (char) data;
-	            data = isw.read();
-	            foo+=current;
-	        }**/
-			if (connection.getResponseCode() != HttpURLConnection.HTTP_OK) {
+
+	        if (connection.getResponseCode() != HttpURLConnection.HTTP_OK) {
 				return null;
 			}
 			
@@ -61,7 +59,7 @@ public class FlickrFetchr {
 			connection.disconnect();
 		}
 	}
-	public String getUrl(String urlSpec) throws IOException {
+	String getUrl(String urlSpec) throws IOException {
 		return new String(getUrlBytes(urlSpec));
 	}
 	public ArrayList<GalleryItem> fetchItems() {
